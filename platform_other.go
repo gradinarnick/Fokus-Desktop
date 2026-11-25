@@ -26,3 +26,5 @@ func runningApps() []string      { return []string{"Telegram", "Steam"} }
 func install()                   { fmt.Println("install: only windows/mac") }
 func uninstallAll()              { fmt.Println("uninstall"); os.Exit(0) }
 func replaceSelf(b []byte) error { return nil }
+
+func openUI() { fmt.Println(uiURL) }

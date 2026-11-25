@@ -238,7 +238,7 @@ func install() {
 	if run("launchctl", "bootstrap", "system", daemonPlist) != nil {
 		_ = run("launchctl", "load", "-w", daemonPlist)
 	}
-	if u := os.Getenv("SUDO_USER"); u != "" && u != "root" {
+	if u := os.Getenv("SUDO_USER"); !quiet && u != "" && u != "root" {
 		if home := userHome(u); home != "" {
 			p := filepath.Join(home, "Desktop", "Фокус.webloc")
 			_ = os.WriteFile(p, []byte(`<?xml version="1.0" encoding="UTF-8"?>
@@ -274,8 +274,12 @@ func removeVideoBlock() {
 	}
 }
 
+// openUI открывает окно «Фокуса».
+func openUI() { _ = exec.Command("open", uiURL).Run() }
+
 func uninstallAll() {
 	applyBlocks(Active{})
+	_ = os.RemoveAll("/Applications/Фокус.app")
 	_ = os.Remove(chromePlist)
 	_ = run("killall", "cfprefsd")
 	if m, _ := filepath.Glob("/Users/*/Desktop/Фокус.webloc"); m != nil {

@@ -238,13 +238,18 @@ func install() {
 		_ = run("schtasks", "/create", "/tn", "Fokus", "/xml", xmlPath, "/f")
 	}
 	_ = run("schtasks", "/run", "/tn", "Fokus")
-	_ = os.WriteFile(shortcutPath, []byte("[InternetShortcut]\r\nURL="+uiURL+"\r\nIconFile="+exePath()+"\r\nIconIndex=0\r\n"), 0644)
+	if !quiet {
+		_ = os.WriteFile(shortcutPath, []byte("[InternetShortcut]\r\nURL="+uiURL+"\r\nIconFile="+exePath()+"\r\nIconIndex=0\r\n"), 0644)
+	}
 	for i := 0; i < 40; i++ {
 		if c, err := net.Dial("tcp", listenAddr); err == nil {
 			c.Close()
 			break
 		}
 		time.Sleep(500 * time.Millisecond)
+	}
+	if quiet {
+		return
 	}
 	_ = run("rundll32", "url.dll,FileProtocolHandler", uiURL)
 	message("«Фокус» установлен.\n\nОткроется окно «Фокуса» в браузере. Первым делом владелец ключа настраивает Google Authenticator.\n\nПотом «Фокус» открывается значком «Фокус» на рабочем столе.")
@@ -262,9 +267,29 @@ func removeVideoBlock() {
 	_ = os.Remove(`C:\Users\Public\Desktop\Разблокировать видео.lnk`)
 }
 
+// openUI открывает окно «Фокуса» (ярлыки в «Пуске» и на рабочем столе).
+func openUI() {
+	for i := 0; i < 20; i++ {
+		if c, err := net.Dial("tcp", listenAddr); err == nil {
+			c.Close()
+			_ = run("rundll32", "url.dll,FileProtocolHandler", uiURL)
+			return
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
+	message("«Фокус» ещё запускается. Попробуйте открыть его через минуту.")
+}
+
+const appDir = `C:\Program Files\Fokus`
+const uninstKey = `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Fokus`
+
 func uninstallAll() {
 	applyBlocks(Active{})
 	_ = os.Remove(shortcutPath)
+	_ = os.Remove(`C:\Users\Public\Desktop\Фокус.lnk`)
+	_ = os.Remove(`C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Фокус.lnk`)
+	_ = run("reg", "delete", uninstKey, "/f")
+	_ = os.RemoveAll(appDir)
 	_ = run("schtasks", "/delete", "/tn", "Fokus", "/f")
 	cmd := hidden(exec.Command("cmd", "/c", "ping -n 4 127.0.0.1 >nul & rmdir /s /q \""+dataDir()+"\""))
 	_ = cmd.Start()

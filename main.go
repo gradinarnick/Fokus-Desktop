@@ -11,6 +11,9 @@ import (
 
 var version = "1.0.0" // подставляется при сборке
 
+// quiet: установка из установщика (.pkg / Setup.exe) — без своих окон.
+var quiet bool
+
 const listenAddr = "127.0.0.1:47890"
 const uiURL = "http://127.0.0.1:47890/"
 
@@ -23,7 +26,10 @@ func main() {
 	case "service":
 		runService()
 	case "install", "":
+		quiet = len(os.Args) > 2 && os.Args[2] == "/quiet"
 		install()
+	case "open", "uninstall":
+		openUI()
 	case "version":
 		fmt.Println(version)
 	default:
