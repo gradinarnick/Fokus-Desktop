@@ -65,7 +65,7 @@ func stateView() map[string]any {
 		"night":        st.Night,
 		"nightStart":   st.NightStart,
 		"nightEnd":     st.NightEnd,
-		"rules":        st.Rules,
+		"rules":        append([]Rule{}, st.Rules...),
 		"unlocks":      unl,
 		"activeVideo":  a.Video,
 		"activeNight":  a.Night,
