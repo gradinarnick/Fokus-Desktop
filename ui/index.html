@@ -85,7 +85,7 @@ function toast(t) {
   document.body.appendChild(d); setTimeout(() => d.remove(), 3500);
 }
 
-async function load() { try { S = await api('/api/state'); render(); } catch (e) { $('#app').textContent = 'Служба «Фокуса» не отвечает.'; } }
+async function load() { try { S = await api('/api/state'); S.rules = S.rules || []; S.unlocks = S.unlocks || {}; render(); } catch (e) { $('#app').textContent = 'Служба «Фокуса» не отвечает.'; } }
 
 // Действие. why != null — нужен код владельца ключа (если ключ настроен).
 function act(body, why, done) {
