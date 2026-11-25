@@ -115,8 +115,8 @@ function codeModal(why, run) {
   inp.focus();
 }
 
-function open(p) { page = p; render(); window.scrollTo(0, 0); }
-function bar(t) { return `<div class="bar"><button class="back" onclick="open('home')">←</button><h2>${t}</h2></div>`; }
+function go(p) { page = p; render(); window.scrollTo(0, 0); }
+function bar(t) { return `<div class="bar"><button class="back" onclick="go('home')">←</button><h2>${t}</h2></div>`; }
 function big(img, bg, t, s) { return `<div class="big" style="background:linear-gradient(${bg},#fff)"><img src="${img}"><div class="t">${t}</div><div class="sub" style="margin-top:6px">${s}</div></div>`; }
 function toggle(title, sub, on, onclick) {
   return `<div class="row clickable" onclick="${onclick}"><div class="grow"><b>${title}</b><div class="sub">${sub}</div></div><div class="switch ${on ? 'on' : ''}"></div></div>`;
@@ -139,7 +139,7 @@ function home() {
   <div class="hero ${ok ? '' : 'warn'}"><div><div class="t">${ok ? 'Защита включена' : (S.keySet ? 'Видео не блокируется' : 'Настрой ключ')}</div>
     <div class="s">${ok ? parts.join(' · ') : (S.keySet ? 'Включи блок видео' : 'Первый шаг: ключ Google Authenticator для владельца ключа')}</div></div>
     <img src="${ok ? 'ill_shield.svg' : 'ill_setup.svg'}"></div>
-  ${S.keySet ? '' : `<div class="card"><div class="row"><div class="grow"><b>Ключ Google Authenticator</b><div class="sub">Делает владелец ключа. После этого ослабить защиту можно только его кодом.</div></div><button class="btn small" onclick="open('key')">Сделать</button></div></div>`}
+  ${S.keySet ? '' : `<div class="card"><div class="row"><div class="grow"><b>Ключ Google Authenticator</b><div class="sub">Делает владелец ключа. После этого ослабить защиту можно только его кодом.</div></div><button class="btn small" onclick="go('key')">Сделать</button></div></div>`}
   ${un.length ? `<div class="section">Сейчас открыто</div><div class="card">${un.map(([k, v]) => `<div class="row"><div class="grow"><b>${k === 'all' ? 'Всё' : 'Видео'}</b><div class="sub" style="color:var(--amber)">до ${clock(v)}</div></div><button class="btn soft small" onclick="act({action:'lock',scope:'${k}'})">Закрыть</button></div>`).join('')}</div>` : ''}
   <div class="section">Ограничения</div>
   <div class="grid">
@@ -153,7 +153,7 @@ function home() {
   Защита надёжна, если эта учётная запись без прав администратора. Версия ${S.version} · обновляется сама.</div>`;
 }
 function tile(img, bg, n, s, c, p) {
-  return `<div class="tile" style="background:linear-gradient(${bg},#fff)" onclick="open('${p}')"><img src="${img}"><div class="n">${n}</div><div style="color:${c}">${s}</div></div>`;
+  return `<div class="tile" style="background:linear-gradient(${bg},#fff)" onclick="go('${p}')"><img src="${img}"><div class="n">${n}</div><div style="color:${c}">${s}</div></div>`;
 }
 
 function video() {
@@ -240,7 +240,7 @@ function key() {
 async function confirmKey() {
   const r = await api('/api/do', { action: 'key_confirm', code: $('#kc').value });
   if (r.error) { $('#ke').textContent = r.error; return; }
-  S = r; toast('Ключ сохранён'); open('home');
+  S = r; toast('Ключ сохранён'); go('home');
 }
 
 load();
