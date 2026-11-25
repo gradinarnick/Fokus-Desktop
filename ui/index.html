@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Фокус</title>
+<link rel="icon" href="ill_shield.svg">
+<style>
+  :root { --bg:#F4F6FB; --card:#fff; --ink:#0F172A; --sub:#64748B; --line:#E2E8F0; --accent:#4F46E5; --accent2:#7C3AED;
+          --soft:#EEF2FF; --green:#15803D; --red:#E11D48; --redsoft:#FFE4E6; --amber:#B45309; --ambersoft:#FEF3C7; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.4 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif; }
+  main { max-width:760px; margin:0 auto; padding:28px 20px 60px; }
+  h1 { font-size:34px; margin:0; font-weight:650; letter-spacing:-.5px; }
+  h2 { font-size:24px; margin:0; font-weight:620; }
+  .sub { color:var(--sub); font-size:15px; }
+  .bar { display:flex; align-items:center; gap:10px; margin:4px 0 14px; }
+  .back { width:44px; height:44px; border-radius:22px; border:0; background:transparent; font-size:26px; cursor:pointer; color:var(--ink); }
+  .back:hover { background:#e9ecf5; }
+  .hero { display:flex; align-items:center; gap:16px; padding:24px; border-radius:28px; color:#fff;
+          background:linear-gradient(135deg,var(--accent),var(--accent2)); box-shadow:0 8px 24px rgba(79,70,229,.25); margin-top:18px; }
+  .hero.warn { background:linear-gradient(135deg,#F43F5E,#F59E0B); box-shadow:0 8px 24px rgba(244,63,94,.25); }
+  .hero .t { font-size:26px; font-weight:650; }
+  .hero .s { opacity:.9; margin-top:6px; }
+  .hero img { width:96px; height:96px; margin-left:auto; }
+  .card { background:var(--card); border-radius:24px; padding:20px; margin-top:14px; box-shadow:0 1px 2px rgba(15,23,42,.06); }
+  .section { color:var(--sub); font-size:14px; font-weight:600; margin:22px 6px 0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:14px; margin-top:10px; }
+  .tile { border-radius:24px; padding:18px; cursor:pointer; background:#fff; box-shadow:0 1px 2px rgba(15,23,42,.06);
+          transition:transform .15s, box-shadow .15s; }
+  .tile:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(15,23,42,.08); }
+  .tile img { width:68px; height:68px; }
+  .tile .n { font-size:18px; font-weight:620; margin-top:8px; }
+  .big { display:flex; flex-direction:column; align-items:center; text-align:center; padding:26px 22px; border-radius:28px; margin-top:6px; }
+  .big img { width:140px; height:140px; animation:pop .35s ease; }
+  .big .t { font-size:23px; font-weight:640; margin-top:12px; }
+  @keyframes pop { from { transform:scale(.85) translateY(8px); opacity:0 } to { transform:none; opacity:1 } }
+  .row { display:flex; align-items:center; gap:12px; padding:8px 0; }
+  .row .grow { flex:1; }
+  .row + .row { border-top:1px solid var(--line); }
+  .btn { border:0; border-radius:18px; padding:13px 20px; font-size:16px; font-weight:600; cursor:pointer; background:var(--accent); color:#fff; }
+  .btn.soft { background:var(--soft); color:var(--accent); }
+  .btn.danger { background:var(--redsoft); color:var(--red); }
+  .btn.small { padding:9px 14px; font-size:14px; border-radius:14px; }
+  .btn.wide { width:100%; margin-top:12px; }
+  .btn:hover { filter:brightness(.97); }
+  .switch { position:relative; width:52px; height:30px; border-radius:15px; background:#CBD5E1; flex:none; transition:background .2s; }
+  .switch::after { content:""; position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:12px; background:#fff; transition:left .2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+  .switch.on { background:var(--accent); }
+  .switch.on::after { left:25px; }
+  .clickable { cursor:pointer; }
+  .chip { display:inline-block; padding:4px 10px; border-radius:12px; font-size:13px; font-weight:600; }
+  ul.list { margin:6px 0 0; padding-left:20px; } ul.list li { margin:6px 0; }
+  input, select { font:inherit; padding:12px 14px; border-radius:14px; border:1px solid var(--line); background:#fff; color:var(--ink); }
+  .choices { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .choice { padding:11px 16px; border-radius:14px; background:#F1F5F9; cursor:pointer; font-weight:600; }
+  .choice.sel { background:#0284C7; color:#fff; }
+  .keybox { font:600 24px/1.4 ui-monospace, Menlo, Consolas, monospace; letter-spacing:2px; text-align:center; padding:18px; background:#F1F5F9; border-radius:18px; margin-top:12px; user-select:all; }
+  .modal { position:fixed; inset:0; background:rgba(15,23,42,.45); display:flex; align-items:center; justify-content:center; padding:20px; }
+  .sheet { background:var(--bg); border-radius:28px; padding:26px; width:100%; max-width:420px; text-align:center; animation:pop .2s ease; }
+  .sheet img { width:84px; height:84px; }
+  .code { font:600 34px ui-monospace, Menlo, Consolas, monospace; letter-spacing:10px; text-align:center; width:100%; margin-top:14px; }
+  .err { color:var(--red); margin-top:10px; min-height:20px; }
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#0F172A; color:#fff; padding:12px 18px; border-radius:14px; }
+  .foot { text-align:center; color:var(--sub); font-size:13px; margin-top:26px; }
+</style>
+</head>
+<body>
+<main id="app">Загрузка…</main>
+<script>
+const $ = s => document.querySelector(s);
+const api = (path, body) => fetch(path, {
+  method: body ? 'POST' : 'GET',
+  headers: { 'X-Fokus': '1', 'Content-Type': 'application/json' },
+  body: body ? JSON.stringify(body) : undefined
+}).then(r => r.json());
+let S = null, page = 'home', unlockScope = 'video', unlockMin = 15, apps = [];
+const hhmm = m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+const clock = ts => { const d = new Date(ts * 1000); return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const isWin = () => S && S.os === 'windows';
+
+function toast(t) {
+  const d = document.createElement('div'); d.className = 'toast'; d.textContent = t;
+  document.body.appendChild(d); setTimeout(() => d.remove(), 3500);
+}
+
+async function load() { try { S = await api('/api/state'); render(); } catch (e) { $('#app').textContent = 'Служба «Фокуса» не отвечает.'; } }
+
+// Действие. why != null — нужен код владельца ключа (если ключ настроен).
+function act(body, why, done) {
+  const run = async code => {
+    const r = await api('/api/do', { ...body, code });
+    S = r;
+    if (r.error) return r.error;
+    render(); if (done) done(); return null;
+  };
+  if (why && S.keySet) codeModal(why, run);
+  else run('').then(e => { if (e) toast(e); });
+}
+
+function codeModal(why, run) {
+  const m = document.createElement('div'); m.className = 'modal';
+  m.innerHTML = `<div class="sheet"><img src="ill_key.svg"><h2 style="margin-top:8px">Нужен код</h2>
+    <div class="sub" style="margin-top:6px">${esc(why)}<br>Попроси 6 цифр из Google Authenticator у владельца ключа.</div>
+    <input class="code" maxlength="6" inputmode="numeric" placeholder="••••••">
+    <div class="err"></div>
+    <button class="btn wide">Подтвердить</button><button class="btn soft wide">Отмена</button></div>`;
+  document.body.appendChild(m);
+  const inp = m.querySelector('input'), err = m.querySelector('.err');
+  const go = async () => { const e = await run(inp.value); if (e) { err.textContent = e; inp.value = ''; inp.focus(); } else m.remove(); };
+  m.querySelectorAll('button')[0].onclick = go;
+  m.querySelectorAll('button')[1].onclick = () => m.remove();
+  inp.oninput = () => { if (inp.value.replace(/\D/g, '').length === 6) go(); };
+  inp.focus();
+}
+
+function open(p) { page = p; render(); window.scrollTo(0, 0); }
+function bar(t) { return `<div class="bar"><button class="back" onclick="open('home')">←</button><h2>${t}</h2></div>`; }
+function big(img, bg, t, s) { return `<div class="big" style="background:linear-gradient(${bg},#fff)"><img src="${img}"><div class="t">${t}</div><div class="sub" style="margin-top:6px">${s}</div></div>`; }
+function toggle(title, sub, on, onclick) {
+  return `<div class="row clickable" onclick="${onclick}"><div class="grow"><b>${title}</b><div class="sub">${sub}</div></div><div class="switch ${on ? 'on' : ''}"></div></div>`;
+}
+
+function render() {
+  const P = { home, video, night, rules, access, key }[page] || home;
+  $('#app').innerHTML = P();
+  if (page === 'rules') fillApps();
+}
+
+function home() {
+  const ok = S.keySet && S.video;
+  const date = new Date().toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+  const parts = [S.activeVideo ? 'Видео закрыто' : 'Видео открыто'];
+  if (S.night) parts.push('ночь ' + hhmm(S.nightStart) + '–' + hhmm(S.nightEnd));
+  if (S.rules.length) parts.push('правил: ' + S.rules.length);
+  const un = Object.entries(S.unlocks || {});
+  return `<h1>Фокус</h1><div class="sub">${date[0].toUpperCase() + date.slice(1)}</div>
+  <div class="hero ${ok ? '' : 'warn'}"><div><div class="t">${ok ? 'Защита включена' : (S.keySet ? 'Видео не блокируется' : 'Настрой ключ')}</div>
+    <div class="s">${ok ? parts.join(' · ') : (S.keySet ? 'Включи блок видео' : 'Первый шаг: ключ Google Authenticator для владельца ключа')}</div></div>
+    <img src="${ok ? 'ill_shield.svg' : 'ill_setup.svg'}"></div>
+  ${S.keySet ? '' : `<div class="card"><div class="row"><div class="grow"><b>Ключ Google Authenticator</b><div class="sub">Делает владелец ключа. После этого ослабить защиту можно только его кодом.</div></div><button class="btn small" onclick="open('key')">Сделать</button></div></div>`}
+  ${un.length ? `<div class="section">Сейчас открыто</div><div class="card">${un.map(([k, v]) => `<div class="row"><div class="grow"><b>${k === 'all' ? 'Всё' : 'Видео'}</b><div class="sub" style="color:var(--amber)">до ${clock(v)}</div></div><button class="btn soft small" onclick="act({action:'lock',scope:'${k}'})">Закрыть</button></div>`).join('')}</div>` : ''}
+  <div class="section">Ограничения</div>
+  <div class="grid">
+    ${tile('ill_video_off.svg', '#FFE4E6', 'Видео', S.activeVideo ? 'Заблокировано' : (S.video ? 'Открыто временно' : 'Выключено'), S.activeVideo ? 'var(--red)' : 'var(--amber)', 'video')}
+    ${tile('ill_moon.svg', '#E0E7FF', 'Ночь', S.night ? (S.activeNight ? 'Сейчас ночь' : hhmm(S.nightStart) + '–' + hhmm(S.nightEnd)) : 'Выключен', 'var(--accent)', 'night')}
+    ${tile('ill_apps.svg', '#DCFCE7', 'Правила', S.rules.length ? 'Правил: ' + S.rules.length : 'Нет правил', 'var(--green)', 'rules')}
+    ${tile('ill_unlock.svg', '#E0F2FE', 'Доступ', un.length ? 'Открыто' : 'По коду', '#0369A1', 'access')}
+    ${tile('ill_key.svg', '#EDE9FE', 'Ключ', S.keySet ? 'Настроен' : 'Не настроен', S.keySet ? 'var(--green)' : 'var(--red)', 'key')}
+  </div>
+  <div class="foot">Ужесточить можно всегда. Ослабить — только по коду из Google Authenticator владельца ключа.<br>
+  Защита надёжна, если эта учётная запись без прав администратора. Версия ${S.version} · обновляется сама.</div>`;
+}
+function tile(img, bg, n, s, c, p) {
+  return `<div class="tile" style="background:linear-gradient(${bg},#fff)" onclick="open('${p}')"><img src="${img}"><div class="n">${n}</div><div style="color:${c}">${s}</div></div>`;
+}
+
+function video() {
+  return bar('Видео') + big('ill_video_off.svg', '#FFE4E6', S.activeVideo ? 'Видео заблокировано' : 'Видео не блокируется',
+    'YouTube, VK Видео, Rutube, Яндекс.Видео, TikTok, Twitch, Netflix, Кинопоиск и другие — во всех браузерах.') +
+  `<div class="card">${toggle('Блокировать всё видео', 'Включить — сразу. Выключить — по коду.', S.video,
+    S.video ? "act({action:'video_off'},'Выключить блок видео.')" : "act({action:'video_on'})")}</div>
+  <div class="section">Что закрыто</div><div class="card"><ul class="list">
+    <li>Видеосайты в Chrome${isWin() ? '' : ' и во всех программах'}</li>
+    <li>Другие браузеры (${isWin() ? 'Edge, Firefox, Opera, Яндекс…' : 'Safari, Firefox, Opera, Яндекс…'}) — не запускаются, разрешён только Chrome</li>
+    <li>Видеоплееры (VLC${isWin() ? ', Кино и ТВ' : ', QuickTime, IINA'}…)</li>
+    <li>Режим инкогнито, гостевой режим, инструменты разработчика и «защищённый DNS» в Chrome</li>
+  </ul></div>`;
+}
+
+function night() {
+  return bar('Ночной режим') + big('ill_moon.svg', '#E0E7FF', S.night ? 'Ночь ' + hhmm(S.nightStart) + '–' + hhmm(S.nightEnd) : 'Ночной режим выключен',
+    'Ночью закрыты соцсети, маркетплейсы и магазины, Telegram, Discord и игры. Всё остальное работает.') +
+  `<div class="card">${toggle('Ночной режим', 'Включить — сразу. Выключить — по коду.', S.night,
+    S.night ? "act({action:'night_off'},'Выключить ночной режим.')" : "act({action:'night_on'})")}
+    <div class="row"><div class="grow"><b>Часы</b><div class="sub">Изменение — по коду</div></div>
+      <input type="time" id="nf" value="${hhmm(S.nightStart).padStart(5, '0')}"> – <input type="time" id="nt" value="${hhmm(S.nightEnd).padStart(5, '0')}">
+      <button class="btn soft small" onclick="saveNight()">Сохранить</button></div></div>
+  <div class="section">Закрыто ночью</div><div class="card"><ul class="list">
+    <li>Соцсети: VK, Одноклассники, Facebook, Instagram, X, Reddit, Pinterest…</li>
+    <li>Маркетплейсы и магазины: Ozon, Wildberries, AliExpress, Temu, Shein, Avito, Amazon, 999.md, Darwin, Ultra…</li>
+    <li>Программы: Telegram, Discord, Steam и другие игровые</li></ul></div>`;
+}
+function toMin(v) { const [h, m] = v.split(':').map(Number); return h * 60 + m; }
+function saveNight() { act({ action: 'night_hours', from: toMin($('#nf').value), to: toMin($('#nt').value) }, 'Изменить часы ночного режима.'); }
+
+function rules() {
+  const modeText = r => r.mode === 'always' ? 'Всегда' : r.mode === 'night' ? 'Ночью' : 'С ' + hhmm(r.from) + ' до ' + hhmm(r.to);
+  return bar('Правила') + big('ill_apps.svg', '#DCFCE7', 'Свои правила', 'Закрой любой сайт или программу: всегда, только ночью или по расписанию.') +
+  `<div class="card">${S.rules.length ? S.rules.map((r, i) => `<div class="row"><img src="${r.kind === 'site' ? 'ill_block.svg' : 'ill_apps.svg'}" width="40"><div class="grow"><b>${esc(r.target)}</b><div class="sub">${r.kind === 'site' ? 'Сайт' : 'Программа'} · ${modeText(r)}</div></div>
+     <button class="btn danger small" onclick="act({action:'rule_del',index:${i}},'Убрать правило «${esc(r.target)}».')">Убрать</button></div>`).join('') : '<div class="sub">Правил пока нет</div>'}</div>
+  <div class="section">Новое правило</div><div class="card">
+    <div class="choices"><select id="rk" onchange="fillApps()"><option value="site">Сайт</option><option value="app">Программа</option></select>
+    <input id="rt" list="appsl" placeholder="Например: instagram.com" style="flex:1;min-width:220px"><datalist id="appsl"></datalist></div>
+    <div class="choices"><select id="rm" onchange="$('#rs').style.display=this.value==='sched'?'flex':'none'">
+      <option value="always">Всегда</option><option value="night">Только ночью</option><option value="sched">По расписанию</option></select>
+      <span id="rs" style="display:none;gap:8px;align-items:center">с <input type="time" id="rf" value="09:00"> до <input type="time" id="rto" value="18:00"></span></div>
+    <button class="btn wide" onclick="addRule()">Добавить (без кода)</button></div>`;
+}
+async function fillApps() {
+  const k = $('#rk'); if (!k) return;
+  $('#rt').placeholder = k.value === 'site' ? 'Например: instagram.com' : (isWin() ? 'Например: Telegram.exe' : 'Например: Telegram');
+  if (k.value === 'app') { if (!apps.length) apps = await api('/api/apps'); $('#appsl').innerHTML = apps.map(a => `<option value="${esc(a)}">`).join(''); }
+  else $('#appsl').innerHTML = '';
+}
+function addRule() {
+  const r = { kind: $('#rk').value, target: $('#rt').value, mode: $('#rm').value, from: toMin($('#rf').value), to: toMin($('#rto').value) };
+  if (!r.target.trim()) return toast('Напиши сайт или программу');
+  act({ action: 'rule_add', rule: r });
+}
+
+function access() {
+  const un = Object.entries(S.unlocks || {});
+  const mins = [[15, '15 мин'], [30, '30 мин'], [60, '1 час'], [120, '2 часа']];
+  return bar('Временный доступ') + big('ill_unlock.svg', '#E0F2FE', 'Открыть на время', 'Код владельца ключа открывает доступ на выбранное время. Потом всё закроется само.') +
+  (un.length ? `<div class="card">${un.map(([k, v]) => `<div class="row"><div class="grow"><b>${k === 'all' ? 'Всё' : 'Видео'}</b><div class="sub">до ${clock(v)}</div></div><button class="btn soft small" onclick="act({action:'lock',scope:'${k}'})">Закрыть</button></div>`).join('')}</div>` : '') +
+  `<div class="section">Что открыть</div><div class="card"><div class="choices">
+    <div class="choice ${unlockScope === 'video' ? 'sel' : ''}" onclick="unlockScope='video';render()">Только видео</div>
+    <div class="choice ${unlockScope === 'all' ? 'sel' : ''}" onclick="unlockScope='all';render()">Всё</div></div></div>
+  <div class="section">На сколько</div><div class="card"><div class="choices">
+    ${mins.map(([m, t]) => `<div class="choice ${unlockMin === m ? 'sel' : ''}" onclick="unlockMin=${m};render()">${t}</div>`).join('')}</div></div>
+  <button class="btn wide" onclick="act({action:'unlock',scope:unlockScope,minutes:unlockMin},'Открыть ${unlockScope === 'all' ? 'всё' : 'видео'} на ${unlockMin} мин.')">Открыть по коду</button>`;
+}
+
+function key() {
+  if (S.pendingKey) return bar('Ключ') + big('ill_key.svg', '#EDE9FE', 'Новый ключ', 'Этот шаг делает владелец ключа. Защищаемый человек не смотрит на экран.') +
+    `<div class="card"><b>1.</b> На своём телефоне: Google Authenticator → «+» → «Ввести ключ настройки».<br>
+     Название: <b>Фокус ${isWin() ? 'Windows' : 'Mac'}</b>, тип: <b>«По времени»</b>. Ключ:
+     <div class="keybox">${S.pendingKey}</div></div>
+    <div class="card"><b>2.</b> Введи 6 цифр, которые покажет приложение:
+     <input class="code" id="kc" maxlength="6" inputmode="numeric" placeholder="••••••"><div class="err" id="ke"></div>
+     <button class="btn wide" onclick="confirmKey()">Готово</button><button class="btn soft wide" onclick="act({action:'key_cancel'})">Отмена</button></div>`;
+  if (S.keySet) return bar('Ключ') + big('ill_key.svg', '#EDE9FE', 'Ключ настроен', 'Ослабить ограничения можно только кодом из Google Authenticator владельца ключа. Каждый код работает один раз.') +
+    `<button class="btn soft wide" onclick="act({action:'key_new'},'Сменить ключ.')">Сменить ключ</button>
+     <button class="btn danger wide" onclick="act({action:'uninstall'},'Удалить «Фокус» с компьютера.', ()=>{ $('#app').innerHTML='<h2>«Фокус» удалён</h2><p class=sub>Все блокировки сняты. Эту вкладку можно закрыть.</p>'; })">Удалить «Фокус»</button>`;
+  return bar('Ключ') + big('ill_key.svg', '#EDE9FE', 'Ключ для кодов', 'Владелец ключа ставит Google Authenticator на свой телефон и добавляет этот ключ. Дальше всё, что ослабляет защиту, — только по его коду.') +
+    `<button class="btn wide" onclick="act({action:'key_new'})">Показать ключ</button>`;
+}
+async function confirmKey() {
+  const r = await api('/api/do', { action: 'key_confirm', code: $('#kc').value });
+  if (r.error) { $('#ke').textContent = r.error; return; }
+  S = r; toast('Ключ сохранён'); open('home');
+}
+
+load();
+setInterval(() => { if (page === 'home' && !document.querySelector('.modal')) load(); }, 20000);
+</script>
+</body>
+</html>
