@@ -1,0 +1,36 @@
+name: Build
+
+# Каждый push в main: сборка для Windows и Mac → GitHub Release.
+# Установленный «Фокус» сам проверяет релизы и обновляется.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+      - name: Build
+        run: |
+          V=1.0.${{ github.run_number }}
+          mkdir -p dist
+          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H=windowsgui -X main.version=$V" -o dist/fokus-windows.exe .
+          GOOS=darwin GOARCH=arm64 go build -trimpath -ldflags "-s -w -X main.version=$V" -o dist/fokus-mac-arm64 .
+          GOOS=darwin GOARCH=amd64 go build -trimpath -ldflags "-s -w -X main.version=$V" -o dist/fokus-mac-amd64 .
+          cp install-mac.sh dist/
+          ls -la dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Фокус для компьютера 1.0.${{ github.run_number }}
+          body: ${{ github.event.head_commit.message }}
+          files: dist/*
+          make_latest: "true"
