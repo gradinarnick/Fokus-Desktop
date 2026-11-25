@@ -11,26 +11,63 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Icon
+        run: pip install -q pillow && python assets/make_icon.py
+      - name: Build pkg
+        run: |
+          V=1.0.${{ github.run_number }}
+          mkdir -p dist
+          GOOS=darwin GOARCH=arm64 go build -trimpath -ldflags "-s -w -X main.version=$V" -o dist/fokus-mac-arm64 .
+          GOOS=darwin GOARCH=amd64 go build -trimpath -ldflags "-s -w -X main.version=$V" -o dist/fokus-mac-amd64 .
+          bash installer/mac/build-pkg.sh "$V"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac
+          path: dist/*
+
+  release:
+    needs: mac
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version: "1.24"
-      - name: Build
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Icon
+        run: pip install -q pillow && python assets/make_icon.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: mac
+          path: dist
+      - name: Build Windows
         run: |
           V=1.0.${{ github.run_number }}
-          mkdir -p dist
+          sudo apt-get update -qq && sudo apt-get install -y -qq nsis
+          go install github.com/akavel/rsrc@v0.10.2
+          ~/go/bin/rsrc -ico assets/icon.ico -arch amd64 -o rsrc_windows_amd64.syso
           GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H=windowsgui -X main.version=$V" -o dist/fokus-windows.exe .
-          GOOS=darwin GOARCH=arm64 go build -trimpath -ldflags "-s -w -X main.version=$V" -o dist/fokus-mac-arm64 .
-          GOOS=darwin GOARCH=amd64 go build -trimpath -ldflags "-s -w -X main.version=$V" -o dist/fokus-mac-amd64 .
+          makensis -V2 -DVERSION=$V installer/fokus.nsi
           cp install-mac.sh dist/
           ls -la dist
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
           name: Фокус для компьютера 1.0.${{ github.run_number }}
-          body: ${{ github.event.head_commit.message }}
+          body: |
+            Установка: Windows — Fokus-Setup.exe, Mac — Fokus-Mac.pkg.
+            ${{ github.event.head_commit.message }}
           files: dist/*
           make_latest: "true"
